@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Assistant</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            height: 100vh;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+        
+        .chat-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            margin-bottom: 20px;
+            padding-bottom: 8vh;
+        }
+        
+        .message-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .message {
+            max-width: 75%;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            word-wrap: break-word;
+        }
+        
+        .user-message {
+            background-color: #0d6efd;
+            color: white;
+            align-self: flex-end;
+            border-radius: 1rem 1rem 0 1rem;
+        }
+        
+        .bot-message {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            align-self: flex-start;
+            border-radius: 1rem 1rem 1rem 0;
+        }
+        
+        .input-area {
+            max-width: 800px;
+            margin: 0 auto;
+            position: sticky;
+            bottom: 24px;
+            background-color: white;
+            padding: 1rem;
+            border-radius: 1rem 1rem 0 1rem;
+            box-shadow: 0 -5px 10px rgba(0,0,0,0.05);
+            z-index: 1000;
+        }
+        
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 1100;
+            border-radius: 1rem 1rem 0 1rem;
+        }
+        
+        /* Custom scrollbar */
+        .chat-area::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .chat-area::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        .chat-area::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+        
+        .chat-area::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        /* Improve code blocks in messages */
+        pre {
+            background-color: #f8f9fa;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+        
+        code {
+            font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.875em;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 576px) {
+            .message {
+                max-width: 85%;
+            }
+            
+            .input-area {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-area" id="chat-area">
+            <div class="message-container" id="messages"></div>
+        </div>
+        
+        <div class="input-area">
+            <div class="container-fluid px-0">
+                <div class="row g-2">
+                    <div class="col">
+                        <input type="text" class="form-control" id="input-domanda" placeholder="Cosa vuoi discutere?">
+                    </div>
+                    <div class="col-auto">
+                        <button id="button-clear" class="btn btn-danger">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="col-auto">
+                        <button id="button-invia" class="btn btn-primary">Invia</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="loading-spinner d-none" id="loading">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Caricamento...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Marked for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@15.0.7/lib/marked.umd.min.js"></script>
+    
+    <script>
+        const inputDomanda = document.getElementById('input-domanda');
+        const buttonInvia = document.getElementById('button-invia');
+        const buttonClear = document.getElementById('button-clear');
+        const messagesDiv = document.getElementById('messages');
+        const loadingDiv = document.getElementById('loading');
+        const chatArea = document.getElementById('chat-area');
+
+        buttonInvia.addEventListener('click', inviaDomanda);
+        buttonClear.addEventListener('click', clearChat);
+        inputDomanda.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                inviaDomanda();
+            }
+        });
+
+        function getCookie(nome) {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === nome) {
+                    return decodeURIComponent(value);
+                }
+            }
+            return null;
+        }
+
+        // Chiedi all'utente se vuole ricaricare le vecchie domande
+        if (getCookie("user_id") != null && confirm('Vuoi ricaricare le vecchie domande?')) {
+            loadingDiv.classList.remove('d-none');
+            fetch('http://localhost:8081/answers.php', {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(risposta => risposta.json())
+            .then(datiRisposta => {
+                loadingDiv.classList.add('d-none');
+                datiRisposta.forEach(oggetto => {
+                    addMessage(oggetto.prompt, 'user');
+                    addMessage(oggetto.response, 'bot');
+                });
+                scrollToBottom();
+            })
+            .catch(errore => {
+                loadingDiv.classList.add('d-none');
+                console.error('Errore:', errore);
+            });
+        }
+
+        function inviaDomanda() {
+            const domanda = inputDomanda.value.trim();
+            if (domanda !== '') {
+                addMessage(domanda, 'user');
+                inputDomanda.value = '';
+                loadingDiv.classList.remove('d-none');
+                inputDomanda.disabled = true;
+                buttonInvia.disabled = true;
+                
+                fetch('http://localhost:8081/question.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    credentials: 'include',
+                    body: `prompt=${encodeURIComponent(domanda)}`
+                })
+                .then(risposta => risposta.json())
+                .then(datiRisposta => {
+                    loadingDiv.classList.add('d-none');
+                    inputDomanda.disabled = false;
+                    buttonInvia.disabled = false;
+                    addMessage(datiRisposta.response, 'bot');
+                    scrollToBottom();
+                })
+                .catch(errore => {
+                    loadingDiv.classList.add('d-none');
+                    inputDomanda.disabled = false;
+                    buttonInvia.disabled = false;
+                    console.error('Errore:', errore);
+                    addMessage('Si è verificato un errore durante la comunicazione con il server.', 'bot');
+                });
+            }
+        }
+
+        function clearChat() {
+            messagesDiv.innerHTML = '';
+            document.cookie = "user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        }
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            
+            const textElement = document.createElement('div');
+            textElement.innerHTML = sender === 'user' ? text : marked.parse(text);
+            messageDiv.appendChild(textElement);
+            messagesDiv.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        // Handle viewport adjustments for mobile keyboards
+        const viewportHeight = window.innerHeight;
+        window.addEventListener('resize', () => {
+            if (window.innerHeight < viewportHeight) {
+                // Keyboard is likely visible
+                document.body.style.height = window.innerHeight + 'px';
+            } else {
+                document.body.style.height = '100vh';
+            }
+            scrollToBottom();
+        });
+
+        // Initial focus on input
+        inputDomanda.focus();
+        
+        // Initial scroll to bottom
+        scrollToBottom();
+    </script>
+</body>
+</html>

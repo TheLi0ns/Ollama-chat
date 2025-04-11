@@ -1,0 +1,74 @@
+version: '3'
+
+networks:
+  internal:
+    driver: bridge
+  public:
+    driver: bridge
+
+services:
+  mariadb:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${DB_NAME:-ollama_logs}
+    networks:
+      - internal
+    volumes:
+      - ./mariadb/data:/var/lib/mysql
+      - ./mariadb/init:/docker-entrypoint-initdb.d/:ro
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    depends_on:
+      - mariadb
+    ports:
+      - "${PHPMYADMIN_PORT:-8090}:80"
+    environment:
+      PMA_HOST: mariadb
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+    networks:
+      - internal
+
+  ollama:
+    image: ollama/ollama
+    networks:
+      - internal
+    volumes:
+      - ollama:/root/.ollama
+
+  middleware-php:
+    build:
+      context: ./middlewarePHP/
+      dockerfile: dockerfile
+    environment:
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434/api/generate}
+      DB_HOST: ${DB_HOST:-mariadb}
+      DB_USER: ${DB_USER:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-root}
+      DB_NAME: ${DB_NAME:-ollama_logs}
+    networks:
+      - internal
+      - public
+    ports:
+      - "${MIDDLEWARE_PORT:-8081}:80"
+    depends_on:
+      - mariadb
+      - ollama
+    volumes:
+      - ./middlewarePHP:/var/www/html
+
+  apache:
+    image: httpd:latest
+    depends_on:
+      - middleware-php
+    networks:
+      - public
+    ports:
+      - "80:80"
+    volumes:
+      - ./apache:/usr/local/apache2/htdocs
+
+volumes:
+  ollama:
+    external: true

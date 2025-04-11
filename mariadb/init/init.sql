@@ -1,0 +1,8 @@
+USE ollama_logs;
+CREATE TABLE logs (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    cookie_ID VARCHAR(255) NOT NULL,
+    Prompt TEXT NOT NULL,
+    Response TEXT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

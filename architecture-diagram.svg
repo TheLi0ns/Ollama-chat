@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="660" viewBox="0 0 800 660">
+  <!-- Stile e definizioni -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#34495E" />
+    </marker>
+    <linearGradient id="tier1-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#E3F2FD;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#BBDEFB;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="tier2-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#90CAF9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#64B5F6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="tier3-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#64B5F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#42A5F5;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="data-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#42A5F5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2196F3;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.2)" />
+    </filter>
+  </defs>
+  
+  <style>
+    .container { fill: #FFFFFF; stroke: #34495E; stroke-width: 2; rx: 10; ry: 10; filter: url(#shadow); }
+    .component { fill: #FFFFFF; stroke: #34495E; stroke-width: 2; rx: 8; ry: 8; filter: url(#shadow); }
+    .database { fill: #FFFFFF; stroke: #34495E; stroke-width: 2; rx: 8; ry: 8; filter: url(#shadow); }
+    .text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; fill: #34495E; }
+    .title { font-family: 'Segoe UI', Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #34495E; }
+    .tier-title { font-family: 'Segoe UI', Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #34495E; }
+    .note { font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; fill: #34495E; }
+    .arrow { stroke: #34495E; stroke-width: 2; marker-end: url(#arrowhead); fill: none; }
+    .note-box { fill: #FFF9C4; stroke: #34495E; stroke-width: 1; rx: 5; ry: 5; filter: url(#shadow); }
+    .tier-box { stroke: #34495E; stroke-width: 2; rx: 12; ry: 12; opacity: 0.9; }
+  </style>
+  
+  <!-- Titolo del diagramma -->
+  <text x="400" y="30" text-anchor="middle" class="title" font-size="24" font-weight="bold">Architettura Ollama Chat</text>
+  
+  <!-- Container Docker -->
+  <rect x="50" y="60" width="700" height="580" class="container" fill="#F8F9FA" />
+  <text x="400" y="85" text-anchor="middle" class="title" font-size="20">Docker Environment</text>
+  
+  <!-- Tier 1 - Client (aumentato da 150 a 170) -->
+  <rect x="100" y="110" width="600" height="170" class="tier-box" fill="url(#tier1-gradient)" opacity="0.2" />
+  <text x="150" y="130" class="tier-title">TIER 1 - CLIENT</text>
+  
+  <!-- Client Browser (spostato leggermente più in basso) -->
+  <rect x="350" y="130" width="120" height="60" class="component" fill="#E3F2FD" />
+  <text x="410" y="165" text-anchor="middle" class="text" font-weight="bold">Client Browser</text>
+  
+  <!-- Apache Web Server (spostato più in basso) -->
+  <rect x="350" y="230" width="120" height="60" class="component" fill="#BBDEFB" />
+  <text x="410" y="255" text-anchor="middle" class="text" font-weight="bold">Apache</text>
+  <text x="410" y="275" text-anchor="middle" class="text" font-size="12">ai.html</text>
+  
+  <!-- Tier 2 - Middleware (spostato più in basso) -->
+  <rect x="100" y="300" width="600" height="120" class="tier-box" fill="url(#tier2-gradient)" opacity="0.2" />
+  <text x="150" y="320" class="tier-title">TIER 2 - MIDDLEWARE</text>
+  
+  <!-- PHP Middleware (spostato più in basso) -->
+  <rect x="350" y="350" width="120" height="80" class="component" fill="#90CAF9" />
+  <text x="410" y="375" text-anchor="middle" class="text" font-weight="bold">PHP Middleware</text>
+  <text x="410" y="395" text-anchor="middle" class="text" font-size="12">question.php</text>
+  <text x="410" y="415" text-anchor="middle" class="text" font-size="12">answers.php</text>
+  
+  <!-- Tier 3 - Server (spostato più in basso) -->
+  <rect x="100" y="440" width="600" height="120" class="tier-box" fill="url(#tier3-gradient)" opacity="0.2" />
+  <text x="150" y="460" class="tier-title">TIER 3 - SERVER</text>
+  
+  <!-- Ollama Service (spostato più in basso) -->
+  <rect x="200" y="470" width="120" height="80" class="component" fill="#64B5F6" />
+  <text x="260" y="495" text-anchor="middle" class="text" font-weight="bold">Ollama Service</text>
+  <text x="260" y="515" text-anchor="middle" class="text" font-size="12">AI Models</text>
+  <text x="260" y="535" text-anchor="middle" class="text" font-size="12">(llama3.2:1b)</text>
+  
+  <!-- Data Storage (spostato più in basso) -->
+  <rect x="100" y="580" width="600" height="40" class="tier-box" fill="url(#data-gradient)" opacity="0.2" />
+  <text x="150" y="600" class="tier-title">DATA STORAGE</text>
+  
+  <!-- MariaDB (spostato più in basso) -->
+  <rect x="500" y="470" width="120" height="80" class="database" fill="#42A5F5" />
+  <text x="560" y="495" text-anchor="middle" class="text" font-weight="bold">MariaDB</text>
+  <text x="560" y="515" text-anchor="middle" class="text" font-size="12">ollama_logs</text>
+  
+  <!-- PHPMyAdmin (spostato più in basso) -->
+  <rect x="500" y="570" width="120" height="40" class="component" fill="#2196F3" />
+  <text x="560" y="595" text-anchor="middle" class="text" font-weight="bold">PHPMyAdmin</text>
+  
+  <!-- Frecce di connessione (aggiustate per le nuove posizioni) -->
+  <!-- Browser -> Apache -->
+  <path d="M 410 190 L 410 230" class="arrow" />
+  
+  <!-- Apache -> PHP Middleware -->
+  <path d="M 410 290 L 410 350" class="arrow" />
+  
+  <!-- PHP Middleware -> Ollama -->
+  <path d="M 350 390 L 260 390 L 260 470" class="arrow" />
+  
+  <!-- PHP Middleware -> MariaDB -->
+  <path d="M 470 390 L 560 390 L 560 470" class="arrow" />
+  
+  <!-- PHPMyAdmin -> MariaDB -->
+  <path d="M 560 570 L 560 550" class="arrow" />
+  
+  <!-- Note esplicative (spostate più in basso) -->
+  <!-- Note Browser -->
+  <rect x="600" y="130" width="140" height="40" class="note-box" />
+  <text x="670" y="155" text-anchor="middle" class="note">Interazione utente</text>
+  
+  <!-- Note Apache -->
+  <rect x="600" y="230" width="140" height="40" class="note-box" />
+  <text x="670" y="255" text-anchor="middle" class="note">Serve frontend</text>
+  
+  <!-- Note PHP Middleware -->
+  <rect x="600" y="350" width="140" height="80" class="note-box" />
+  <text x="670" y="370" text-anchor="middle" class="note">Gestisce richieste API</text>
+  <text x="670" y="390" text-anchor="middle" class="note" font-weight="bold">via AJAX</text>
+  <text x="670" y="410" text-anchor="middle" class="note">tra frontend e Ollama</text>
+  
+  <!-- Note Ollama (riposizionata per evitare sovrapposizione) -->
+  <rect x="50" y="490" width="140" height="50" class="note-box" />
+  <text x="120" y="510" text-anchor="middle" class="note">Esegue modelli AI</text>
+  <text x="120" y="530" text-anchor="middle" class="note">come componente CGI</text>
+  
+  <!-- Note MariaDB -->
+  <rect x="630" y="470" width="120" height="60" class="note-box" />
+  <text x="690" y="495" text-anchor="middle" class="note">Memorizza</text>
+  <text x="690" y="515" text-anchor="middle" class="note">conversazioni</text>
+  
+  <!-- Note PHPMyAdmin -->
+  <rect x="630" y="570" width="120" height="40" class="note-box" />
+  <text x="690" y="590" text-anchor="middle" class="note">Gestione DB</text>
+  
+  <!-- Flusso dati (spostato più in basso) -->
+  <text x="430" y="210" text-anchor="start" class="note" font-style="italic" font-weight="bold">HTTP Request</text>
+  <text x="430" y="310" text-anchor="start" class="note" font-style="italic" font-weight="bold" fill="#1565C0">AJAX Calls</text>
+  <text x="270" y="420" text-anchor="start" class="note" font-style="italic" font-weight="bold">Prompts</text>
+  <text x="480" y="420" text-anchor="start" class="note" font-style="italic" font-weight="bold">Logs</text>
+</svg>
